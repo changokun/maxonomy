@@ -68,7 +68,7 @@ class tag {
 		$query = new select_query('test', '*', self::SCHEMA . '.' . self::TABLE_NAME, $where_clause);
 
 		if(false !== $result = db::q($query)) {
-			m::dump($query, 'looking for them');
+			//m::dump($query, 'looking for them');
 			if($query->num_rows == 0) {
 				// not found at all, add a new one.
 				$data = array('string' => array());
@@ -161,8 +161,18 @@ class tag {
 		}
 
 		// run queries
-		$this->en = 'whatevs';
-		$this->loaded = true;
+		$query = new select_query('test', NULL, self::SCHEMA . '.' . self::TABLE_NAME, 'tag_id = ' . $this->tag_id);
+		if(maxonomy::$admin_mode) {
+			die("<hr>XXX<br>Died on line " . __LINE__ . " of " . __FILE__);
+		} else {
+			$query->clauses['select'] = maxonomy::$preferred_language_locale;
+		}
+		if(false !== $result = db::q($query)) {
+			$this->en = $result[0][maxonomy::$preferred_language_locale];
+			$this->loaded = true;
+		} else {
+			return false;
+		}
 	}
 }
 

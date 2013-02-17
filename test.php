@@ -12,6 +12,7 @@ $widget = new widget(66); // see class def below
 
 $list_of_continents = array('Africa', 'Asia', 'Europe', 'North America', 'South America');
 $list_of_african_countries = array('Djibouti', 'Republic of the Congo', 'Mozambique', 'Libya', 'Egypt');
+$list_of_european_countries = array('Great Britain', 'Poland', 'Spain', 'France', 'Andorra');
 
 
 $continents_tag = new tag('Continents');
@@ -29,11 +30,23 @@ foreach($list_of_continents as $term) {
 			}
 
 		break;
+
+		case 'Europe':
+			foreach($list_of_european_countries as $country_name) {
+				$country = new tag($country_name);
+				maxonomy::add_tags($country, array($continent_tag, $countries_tag));
+			}
+
+		break;
 	}
 }
 
 
-m::death(maxonomy::get_these_that_have_these_tags('tag', $continents_tag), '$continents');
+m::dump(maxonomy::get_these_that_have_these_tags('tag', $continents_tag), 'continents');
+
+m::dump(maxonomy::get_these_that_have_these_tags('tag', array($countries_tag, new tag('Africa'))), 'countries in africa');
+
+m::death(maxonomy::get_these_that_have_these_tags('tag', array($countries_tag, new tag('Europe'))), 'countries in Europe');
 
 //maxonomy::set_admin_mode(false);
 //m::dump(maxonomy::get_direct_tags($widget), 'non admin');

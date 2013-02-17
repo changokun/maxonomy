@@ -15,9 +15,9 @@ class maxonomy {
 
 	public static $preferred_language_locale = 'en'; // which really means en_US
 
-	private static $admin_mode = false; // turn this on to work in all languages. otherwise works in preferred lang. changes outputs.
-	private static $update_mode = false; // turn this on to allow instantiations to update records that have differences. empty fields are greedily filled in. see the tag construct for when it finds one record withm ultiple langs
-	private static $add_mode = 'replace'; // replace (delete then insert) or append (blind - does not check for existing recs, will cause duplicates)
+	public static $admin_mode = false; // turn this on to work in all languages. otherwise works in preferred lang. changes outputs.
+	public static $update_mode = false; // turn this on to allow instantiations to update records that have differences. empty fields are greedily filled in. see the tag construct for when it finds one record withm ultiple langs
+	public static $add_mode = 'replace'; // replace (delete then insert) or append (blind - does not check for existing recs, will cause duplicates)
 
 	const SCHEMA = 'test';
 	const TABLE_NAME = 'maxonomy';
@@ -71,7 +71,26 @@ class maxonomy {
 	}
 
 	public static function get_these_that_have_these_tags($class_name, $tags) {
-		m::death($tags, $class_name);
+		$class_id = $class_name::MAXONOMY_ID;
+		// get tag ids into a list
+		if( ! is_array($tags)) $tags = array($tags);
+		$tag_id_list = array();
+		foreach($tags as $tag) $tag_id_list[] = $tag->tag_id;
+		$query = new select_query('test', '*', self::SCHEMA . '.' . self::TABLE_NAME . ' m join ' . tag::SCHEMA . '.' . tag::TABLE_NAME . ' t on m.tag_id = t.tag_id ', array('item_class_id = ' . $class_id, 't.tag_id in (' . implode(', ', $tag_id_list) . ')'));
+		die("<hr>see, you don't want 'in', you want and, but you also want two records. join to self?<br>Died on line " . __LINE__ . " of " . __FILE__);
+		if(false !== $result = db::q($query)) {
+			m::dump($query);
+			$ret = array();
+			foreach($result as $row) {
+				//$ret[] = new $class_name($row['item_id']);
+				$ret[] = tag::get_tag_by_id($row['item_id']);
+			}
+			return $ret;
+		} else {
+			return false;
+		}
+		m::dump($query);
+		m::death($tags, $class_id);
 	}
 
 	private static function get_class_id_from_object($object) {
